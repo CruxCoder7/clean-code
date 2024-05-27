@@ -14,18 +14,19 @@ const app = express();
 app.use(express.json());
 app.use(urlencoded({ extended: true }));
 
-const mongoDBClient = new MongoDBClient(process.env.MONGODB_URI!);
-
-mongoDBClient.connect().then(() => {
-    const mongoDBUserRepository = new MongoDBUserRepository(mongoDBClient);
-    setupApp(mongoDBUserRepository);
-});
-
-// const postgreSQLClient = new PostgreSQLClient(process.env.POSTGRES_URI!);
-// postgreSQLClient.connect().then(() => {
-//     const postgreSQLUserRepository = new PostgreSQLUserRepository(postgreSQLClient);
-//     setupApp(postgreSQLUserRepository);
-// });
+if(process.env.MONGO){
+    const mongoDBClient = new MongoDBClient(process.env.MONGODB_URI!);
+    mongoDBClient.connect().then(() => {
+        const mongoDBUserRepository = new MongoDBUserRepository(mongoDBClient);
+        setupApp(mongoDBUserRepository);
+    });
+} else {
+    const postgreSQLClient = new PostgreSQLClient(process.env.POSTGRES_URI!);
+    postgreSQLClient.connect().then(() => {
+        const postgreSQLUserRepository = new PostgreSQLUserRepository(postgreSQLClient);
+        setupApp(postgreSQLUserRepository);
+    });
+}
 
 function setupApp(userRepository: UserRepository) {
     const userService = new UserService(userRepository);
